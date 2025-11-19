@@ -322,7 +322,7 @@ export function ConceptForm({ concept, isEdit = false }: ConceptFormProps) {
           <SectionList
             sections={sections}
             onChange={setSections}
-            errors={errors.sections as any}
+            errors={(errors as any).sections}
           />
         </CardContent>
       </Card>

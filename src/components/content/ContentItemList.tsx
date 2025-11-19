@@ -6,7 +6,7 @@ import { MarkdownEditor } from './MarkdownEditor';
 import { ImageUrlInput } from './ImageUrlInput';
 import { DraggableItem } from '@/components/drag-drop/DraggableItem';
 import { SortableList } from '@/components/drag-drop/SortableList';
-import { Trash2, Plus, Image, Type, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, Image, Type, ChevronDown, ChevronUp } from 'lucide-react';
 import { ContentItemWithOrder, ContentType } from '@/types';
 import { generateTempId } from '@/lib/utils';
 import { useState } from 'react';
