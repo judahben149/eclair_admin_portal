@@ -248,7 +248,8 @@ interface ContentItemRequest {
 
 ## Contributing
 
-This is an internal admin tool. Changes are not accepted at the moment. However, feel free to glean the code and setup.
+This is an internal admin tool. Changes are not accepted at the moment.
+However, feel free to glean the code and setup.
 
 ---
 
