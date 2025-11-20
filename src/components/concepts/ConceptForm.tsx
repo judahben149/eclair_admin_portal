@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ import { useCreateConcept, useUpdateConcept } from '@/hooks/useConcepts';
 import { conceptSchema } from '@/lib/validations';
 import { Concept, ConceptRequest, SectionWithOrder, ContentItemWithOrder } from '@/types';
 import { generateTempId } from '@/lib/utils';
-import { Save, Eye, AlertCircle, X, Check } from 'lucide-react';
+import { Save, Eye, AlertCircle, X, Check, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ConceptFormProps {
@@ -29,6 +29,7 @@ export function ConceptForm({ concept, isEdit = false }: ConceptFormProps) {
   const [sections, setSections] = useState<SectionWithOrder[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -174,6 +175,93 @@ export function ConceptForm({ concept, isEdit = false }: ConceptFormProps) {
     navigate('/concepts');
   };
 
+  const handleImportJSON = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.json')) {
+      toast.error('Please select a valid JSON file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+
+        // Validate JSON structure
+        if (!jsonData.title || typeof jsonData.title !== 'string') {
+          toast.error('Invalid JSON: Missing or invalid "title" field');
+          return;
+        }
+
+        // Import basic fields
+        setValue('title', jsonData.title);
+        setValue('description', jsonData.description || '');
+        setValue('displayOrder', jsonData.displayOrder);
+        setValue('published', jsonData.published || false);
+
+        // Import sections
+        if (jsonData.sections && Array.isArray(jsonData.sections)) {
+          const importedSections: SectionWithOrder[] = jsonData.sections.map((section: any, index: number) => {
+            if (!section.heading || typeof section.heading !== 'string') {
+              throw new Error(`Section ${index + 1} is missing a valid "heading" field`);
+            }
+
+            if (!Array.isArray(section.content)) {
+              throw new Error(`Section "${section.heading}" must have a "content" array`);
+            }
+
+            const content: ContentItemWithOrder[] = section.content.map((item: any, itemIndex: number) => {
+              if (!item.type || !['text', 'image'].includes(item.type)) {
+                throw new Error(`Content item ${itemIndex + 1} in section "${section.heading}" has invalid type. Must be "text" or "image"`);
+              }
+
+              if (typeof item.value !== 'string') {
+                throw new Error(`Content item ${itemIndex + 1} in section "${section.heading}" must have a string "value" field`);
+              }
+
+              return {
+                type: item.type as 'text' | 'image',
+                value: item.value,
+                tempId: generateTempId(),
+                displayOrder: item.displayOrder || itemIndex + 1,
+              };
+            });
+
+            return {
+              heading: section.heading,
+              content,
+              tempId: generateTempId(),
+              displayOrder: section.displayOrder || index + 1,
+            };
+          });
+
+          setSections(importedSections);
+        }
+
+        toast.success('Concept imported successfully from JSON!');
+        setHasUnsavedChanges(true);
+      } catch (error) {
+        console.error('JSON import error:', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to import JSON. Please check the file format.');
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error('Failed to read file');
+    };
+
+    reader.readAsText(file);
+
+    // Reset input so the same file can be selected again
+    event.target.value = '';
+  };
+
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
@@ -286,6 +374,15 @@ export function ConceptForm({ concept, isEdit = false }: ConceptFormProps) {
               <Save className="mr-2 h-4 w-4" />
               {isPending ? 'Saving...' : isEdit ? 'Update Concept' : 'Create Concept'}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleImportJSON}
+              disabled={isPending}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Import JSON
+            </Button>
             {isEdit && concept && (
               <Button
                 type="button"
@@ -307,6 +404,15 @@ export function ConceptForm({ concept, isEdit = false }: ConceptFormProps) {
               Cancel
             </Button>
           </div>
+
+          {/* Hidden file input for JSON import */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </CardContent>
       </Card>
 

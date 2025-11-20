@@ -52,7 +52,7 @@ export const MarkdownEditor = forwardRef<MDXEditorMethods, MarkdownEditorProps>(
           onChange={onChange}
           placeholder={placeholder || 'Start writing your content...'}
           readOnly={readOnly}
-          contentEditableClassName="prose prose-sm max-w-none min-h-[300px] p-4"
+          contentEditableClassName="prose prose-sm max-w-none min-h-[120px] p-4"
           plugins={[
             headingsPlugin(),
             listsPlugin(),
