@@ -1,0 +1,143 @@
+==============================================
+BACKEND IMAGE UPLOAD - IMPLEMENTATION REQUEST
+==============================================
+
+Hi! The frontend admin portal now supports direct image uploads from users' PCs.
+I need you to implement the backend upload endpoint.
+
+COMPLETE DOCUMENTATION: See "BACKEND_IMAGE_UPLOAD_REQUIREMENTS.md" for full details.
+
+==============================================
+QUICK SUMMARY
+==============================================
+
+ENDPOINT NEEDED:
+  POST /api/v1/admin/upload/image
+  - Requires: JWT authentication (admin only)
+  - Accepts: multipart/form-data with "file" field
+  - Returns: { "imageUrl": "https://cloudinary.com/..." }
+
+RECOMMENDED SOLUTION: Cloudinary
+  - Free tier: 25 GB storage, 25 GB bandwidth/month
+  - Easy Java integration
+  - Automatic image optimization
+  - Built-in CDN
+
+WHAT YOU NEED TO DO:
+  1. Sign up for free Cloudinary account at https://cloudinary.com
+  2. Get credentials (Cloud Name, API Key, API Secret)
+  3. Add to pom.xml:
+     <dependency>
+         <groupId>com.cloudinary</groupId>
+         <artifactId>cloudinary-http44</artifactId>
+         <version>1.36.0</version>
+     </dependency>
+
+  4. Set environment variables in Railway:
+     CLOUDINARY_CLOUD_NAME=your-cloud-name
+     CLOUDINARY_API_KEY=123456789012345
+     CLOUDINARY_API_SECRET=abcdefghijklmnopqrstuvwxyz
+
+  5. Create these files:
+     - config/CloudinaryConfig.java (bean configuration)
+     - service/ImageUploadService.java (upload logic)
+     - controller/FileUploadController.java (REST endpoint)
+
+  6. Configure file upload limits in application.properties:
+     spring.servlet.multipart.max-file-size=10MB
+     spring.servlet.multipart.max-request-size=10MB
+
+VALIDATION REQUIREMENTS:
+  - Accept only: JPG, JPEG, PNG, GIF, WebP
+  - Max file size: 10 MB
+  - Return 400 Bad Request for validation errors
+  - Return 500 Internal Server Error for upload failures
+
+RESPONSE FORMAT:
+  Success (200):
+    {
+      "imageUrl": "https://res.cloudinary.com/your-cloud/image/upload/v1234/eclair/concepts/abc.jpg"
+    }
+
+  Error (400):
+    {
+      "message": "Invalid file type. Only JPG, PNG, GIF, and WebP are allowed."
+    }
+
+  Error (413):
+    {
+      "message": "File size exceeds 10 MB limit."
+    }
+
+TESTING:
+  # Get token
+  TOKEN=$(curl -X POST "http://localhost:8080/api/v1/auth/login" \
+    -H "Content-Type: application/json" \
+    -d '{"username":"admin","password":"admin123"}' \
+    | jq -r '.token')
+
+  # Upload image
+  curl -X POST "http://localhost:8080/api/v1/admin/upload/image" \
+    -H "Authorization: Bearer $TOKEN" \
+    -F "file=@/path/to/image.jpg"
+
+  # Expected: {"imageUrl":"https://res.cloudinary.com/..."}
+
+CORS (If needed):
+  Make sure CORS allows the frontend origin:
+  - http://localhost:5173 (development)
+  - https://your-frontend-domain.com (production)
+
+SECURITY CHECKLIST:
+  ✓ Require JWT authentication (@PreAuthorize("hasRole('ADMIN')"))
+  ✓ Validate file type on backend (don't trust frontend)
+  ✓ Validate file size on backend
+  ✓ Generate unique filenames to prevent overwrites
+  ✓ Upload to specific folder (e.g., "eclair/concepts")
+  ✓ Return HTTPS URLs only
+
+TIME ESTIMATE: 30-60 minutes
+
+==============================================
+FULL DOCUMENTATION
+==============================================
+
+For complete step-by-step instructions with copy-paste code, see:
+  📄 BACKEND_IMAGE_UPLOAD_REQUIREMENTS.md
+
+This includes:
+  ✓ Complete Java code for all classes
+  ✓ Cloudinary account setup instructions
+  ✓ Environment variable configuration
+  ✓ Testing commands
+  ✓ Troubleshooting guide
+  ✓ Production deployment checklist
+  ✓ Cost estimates
+
+==============================================
+FRONTEND STATUS
+==============================================
+
+✅ Frontend is 100% complete and ready
+✅ UI shows drag-and-drop upload area
+✅ Progress bar with percentage
+✅ File validation (type, size)
+✅ Error handling
+✅ Success notifications
+✅ Image preview
+
+Once you deploy the endpoint, it will work immediately!
+
+==============================================
+QUESTIONS?
+==============================================
+
+Check the full documentation first: BACKEND_IMAGE_UPLOAD_REQUIREMENTS.md
+
+If still stuck:
+  1. Test with cURL before testing from frontend
+  2. Check backend logs for errors
+  3. Verify Cloudinary credentials are correct
+  4. Make sure JWT token is valid
+
+The frontend is waiting for you! 🚀
