@@ -68,7 +68,7 @@ A production-ready admin web portal for managing educational stage lighting cont
 
    For production, set these environment variables in your hosting provider:
    ```env
-   VITE_API_BASE_URL=https://eclair-admin-server-production-b1b2.up.railway.app/api/v1
+   VITE_API_BASE_URL=https://eclair-admin-xesflxjduq-ue.a.run.app/api/v1
    VITE_APP_ENV=production
    ```
 
@@ -119,7 +119,7 @@ npm run preview
    ```
 
 3. **Environment Variables** (set in Vercel dashboard):
-   - `VITE_API_BASE_URL`: `https://eclair-admin-server-production-b1b2.up.railway.app/api/v1`
+   - `VITE_API_BASE_URL`: `https://eclair-admin-xesflxjduq-ue.a.run.app/api/v1`
    - `VITE_APP_ENV`: `production`
 
 
@@ -129,7 +129,7 @@ npm run preview
 
 **Base URL**:
 - Development: `http://localhost:8080/api/v1`
-- Production: `https://eclair-admin-server-production-b1b2.up.railway.app/api/v1`
+- Production: `https://eclair-admin-xesflxjduq-ue.a.run.app/api/v1`
 
 ### Authentication
 
@@ -241,7 +241,7 @@ interface ContentItemRequest {
 
 | Variable | Development | Production | Description |
 |----------|------------|------------|-------------|
-| `VITE_API_BASE_URL` | `http://localhost:8080/api/v1` | `https://eclair-admin-server-production-b1b2.up.railway.app/api/v1` | Backend API base URL |
+| `VITE_API_BASE_URL` | `http://localhost:8080/api/v1` | `https://eclair-admin-xesflxjduq-ue.a.run.app/api/v1` | Backend API base URL |
 | `VITE_APP_ENV` | `development` | `production` | Environment name |
 
 ```
